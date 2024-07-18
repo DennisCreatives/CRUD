@@ -3,7 +3,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class UserDAO {
+    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
+
     // a method for creating a new user
     public void addUser(User user) {
         String sql = "INSERT INTO users (name, email) VALUES (?, ?)";
@@ -12,8 +17,10 @@ public class UserDAO {
             stmt.setString(1, user.getName());
             stmt.setString(2, user.getEmail());
             stmt.executeUpdate();
+            logger.info("User added: {}", user);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error adding user: {}", user, e);
+            throw new DatabaseException("Error adding user", e);
         }
     }
 
@@ -33,8 +40,10 @@ public class UserDAO {
                 );
                 users.add(user);
             }
+            logger.info("Fetched all users");
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error fetching users: {}", e);
+            throw new DatabaseException("Error fetching users", e);
         }
         return users;
     }
@@ -55,8 +64,10 @@ public class UserDAO {
                         rs.getString("email")
                 );
             }
+            logger.info("Fetched user with ID: {}", id);
         } catch (SQLException e){
-            e.printStackTrace();
+            logger.error("Fetched user with ID: {}", id, e);
+            throw new DatabaseException("Error fetching user", e);
         }
         return user;
     }
@@ -71,8 +82,10 @@ public class UserDAO {
             stmt.setString(2, user.getEmail());
             stmt.setInt(3, user.getId());
             stmt.executeUpdate();
+            logger.info("User updated: {}", user);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error updating user: {}", user, e);
+            throw new DatabaseException("Error updating user", e);
         }
     }
 
@@ -84,8 +97,10 @@ public class UserDAO {
         PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
+            logger.info("User deleted with ID: {}", id);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error deleting user with id: {}", id, e);
+            throw new DatabaseException("Error deleting user", e);
         }
     }
 }
